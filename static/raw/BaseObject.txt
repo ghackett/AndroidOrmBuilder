@@ -1,0 +1,190 @@
+/**************************************************
+ * Base{ClassName}.java
+ *
+{CopyrightNotice} **************************************************/
+ 
+package {PackageName}.database.objects.base;
+
+import java.nio.ByteBuffer;
+import java.util.Date;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import java.util.ArrayList;
+import java.util.List;
+import org.json.JSONObject;
+import {PackageName}.database.{CoPrefix}PersistentObject;
+import {PackageName}.database.objects.{ClassName};
+
+public abstract class Base{ClassName} extends {CoPrefix}PersistentObject {
+	
+	private static final String ERROR_MSG_CLOSED_CURSOR = "Tried to hyrdate {ClassName} from closed cursor.";
+{ObjErrorMsgs}
+	
+	public static final String TABLE_NAME = "{SqliteTableName}";
+	
+{ObjFieldNamesDefs}
+	
+	public static final String[] ALL_COLUMN_NAMES = new String[] {{ObjFieldNameColList}};
+	
+	public static final String CREATE_TABLE_STATEMENT = "{ObjCreateTableStatement}";
+	public static final String DROP_TABLE_STATEMENT = "{ObjDropTableStatement}";
+	
+	private static final String COUNT_STATEMENT = "SELECT COUNT(" + {ObjPkFieldVar} + ") FROM {SqliteTableName}";
+	
+	private static final String EMPTY_STRING = "";
+	
+{ObjFieldDefs}
+	
+	public Base{ClassName}(SQLiteOpenHelper dbm, Cursor c, boolean skipOk) {
+		super(dbm, c, skipOk);
+	}
+	
+	public Base{ClassName}(SQLiteOpenHelper dbm, String jsonString, boolean skipOk) {
+		super(dbm, jsonString, skipOk);
+	}
+	
+	public Base{ClassName}(SQLiteOpenHelper dbm, JSONObject obj, boolean skipOk) {
+		super(dbm, obj, skipOk);
+	}
+
+	public Base{ClassName}(SQLiteOpenHelper dbm, long id, boolean list) {
+		super(dbm, id, list);
+	}
+
+	public Base{ClassName}(SQLiteOpenHelper dbm) {
+		super(dbm);
+	}
+
+	@Override
+	protected void initNewObject() {
+		super.initNewObject();
+{ObjFieldInit}
+	}
+
+	@Override
+	public String getTableName() {
+		return TABLE_NAME;
+	}
+
+	@Override
+	public String[] getAllColumnNames() {
+		return ALL_COLUMN_NAMES;
+	}
+
+	@Override
+	public String getIdColumnName() {
+		return {ObjPkFieldVar};
+	}
+
+	@Override
+	public String getCreateTableStatement() {
+		return CREATE_TABLE_STATEMENT;
+	}
+
+	@Override
+	public void hydrate(Cursor c, boolean skipOk) {
+		if (c.isClosed()) {
+			throw new PersistentObjectHydrateException(ERROR_MSG_CLOSED_CURSOR);
+		}
+		
+		
+{ObjHydrateProcedure}
+		
+		
+		setIsDirty(false);
+	}
+	
+	@Override
+	public void hydrate(JSONObject obj, boolean skipOk) {
+{ObjJSONHydrate}
+		setIsDirty(true);
+		setIsNew(true);
+	}
+	
+	@Override
+	public JSONObject getJSONObject() {
+		try {
+			JSONObject obj = new JSONObject();
+{ObjJSONCreate}
+			return obj;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public ContentValues getContentValues() {
+		ContentValues cv = new ContentValues({ObjNumFieldsSubPk});
+{ObjPuCvProcedure}
+		return cv;
+	}
+	
+	public static long getCount(SQLiteOpenHelper dbm) {
+		return getCount(dbm, null);
+	}
+	
+	public static long getCount(SQLiteOpenHelper dbm, String whereClause) {
+		long count = 0;
+		SQLiteStatement stmt = null;
+		if (whereClause == null) {
+			stmt = dbm.getReadableDatabase().compileStatement(COUNT_STATEMENT);
+		} else {
+			stmt = dbm.getReadableDatabase().compileStatement(COUNT_STATEMENT + " WHERE " + whereClause);
+		}
+		count = stmt.simpleQueryForLong();
+		stmt.close();
+		return count;
+	}
+	
+	public static boolean isTableEmpty(SQLiteOpenHelper dbm) {
+		return getCount(dbm, null) == 0;
+	}
+	
+	public static int deleteById(SQLiteOpenHelper dbm, long id, boolean notEqual) {
+		return dbm.getWritableDatabase().delete(TABLE_NAME, {ObjPkFieldVar} + (notEqual ? " <> " : " = ") + id, null);
+	}
+	
+	public static int deleteByIds(SQLiteOpenHelper dbm, List<Long> idsToDelete, boolean notIn) {
+		String idList = "";
+		for (int i = 0; i<idsToDelete.size(); i++) {
+			if (!idList.equals(EMPTY_STRING)) {
+				idList += ", ";
+			}
+			idList += "" + idsToDelete.get(i);
+		}
+		return dbm.getWritableDatabase().delete(TABLE_NAME, {ObjPkFieldVar} + (notIn ? " NOT" : "") + " IN (" + idList + ")", null);
+	}
+	
+	public static int deleteWhere(SQLiteOpenHelper dbm, String whereClause) {
+		return deleteWhere(dbm, whereClause, null);
+	}
+	
+	public static int deleteWhere(SQLiteOpenHelper dbm, String whereClause, String[] whereArgs) {
+		return dbm.getWritableDatabase().delete(TABLE_NAME, whereClause, whereArgs);
+	}
+
+	public static List<{ClassName}> findAllObjects(SQLiteOpenHelper dbm, String orderBy) {
+		Cursor c = dbm.getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, null, null, null, null, orderBy);
+		c.moveToFirst();
+		if (c.isAfterLast()) {
+			c.close();
+			return null;
+		} 
+		
+		ArrayList<{ClassName}> objList = new ArrayList<{ClassName}>();
+		while (!c.isAfterLast()) {
+			objList.add(new {ClassName}(dbm, c, false));
+			c.moveToNext();
+		}
+		c.close();
+		return objList;
+	}
+
+{ObjGettersAndSetters}
+
+}

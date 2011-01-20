@@ -1,0 +1,19 @@
+	public long get{UcFieldName}() {
+		return {FieldValueVar};
+	}
+	public Date get{UcFieldName}AsDate() {
+		return new Date({FieldValueVar});
+	}
+	
+	public String get{UcFieldName}AsString() {
+		return formatSQLDate({FieldValueVar});
+	}
+
+	public void set{UcFieldName}(long val) {
+		this.{FieldValueVar} = val;
+		setIsDirty(true);
+	}
+	
+	public void set{UcFieldName}(Date val) {
+		set{UcFieldName}(val.getTime());
+	}

@@ -1,0 +1,151 @@
+/**************************************************
+ * {CoPrefix}DbManager.java
+ *
+{CopyrightNotice} **************************************************/
+
+package {PackageName}.database;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import {PackageName}.R;
+{ObjectClassImports}
+
+public class {CoPrefix}DbManager extends SQLiteOpenHelper {
+	public static final String DB_NAME = "{SqliteFilenameFull}";
+	public static final int DB_VERSION = 1;
+	
+	private static final String PREF_FILE_NAME = "{PackageName}.db_prefs";
+	private static final String PREF_LAST_VERSION = "last_db_version";
+	
+	private static final boolean PRE_BUILT_DB_INCLUDED = {PrebuiltIncluded};
+	private static final int PRE_BUILT_DB_RES_ID = {SqliteResId};
+	
+	private Context mContext;
+
+	public {CoPrefix}DbManager(Context context) {
+		super(context, DB_NAME, null, DB_VERSION);
+		mContext = context;
+		
+		if (PRE_BUILT_DB_INCLUDED) {
+			replaceDbIfNecessary();
+		}
+	}
+
+	@Override
+	public void onCreate(SQLiteDatabase db) {
+		if (!PRE_BUILT_DB_INCLUDED) {
+{DbManagerDropAndCreate}
+		}
+	}
+
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		if (!PRE_BUILT_DB_INCLUDED) {
+{DbManagerDropAndCreate}
+		}
+	}
+	
+	
+	
+	private void replaceDbIfNecessary() {
+		File dbFile = mContext.getDatabasePath(DB_NAME);
+		SharedPreferences sharedPrefs = mContext.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE);
+		int lastVersion = sharedPrefs.getInt(PREF_LAST_VERSION, -1);
+		if (lastVersion != DB_VERSION || (!dbFile.exists())) {
+			replaceDbFile(mContext, PRE_BUILT_DB_RES_ID);
+		}
+	}
+	
+	public static void replaceDbFile(Context context, int dbFileResId) {
+		replaceDbFile(context, context.getResources().openRawResource(dbFileResId));
+	}
+	
+	public static void replaceDbFile(Context context, File newDbFile) {
+		try {
+			replaceDbFile(context, new FileInputStream(newDbFile));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static void replaceDbFile(Context context, InputStream newDbInput) {
+		try {
+			File dbFile = context.getDatabasePath(DB_NAME);
+			dbFile.getParentFile().mkdirs();
+			if (dbFile.exists()) {
+				dbFile.delete();
+			}
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(dbFile));
+			
+			int bytesRead = 0;
+			byte[] data = new byte[2048];
+			
+			while((bytesRead = newDbInput.read(data, 0, data.length)) >= 0) {
+				out.write(data, 0, bytesRead);
+			}
+			out.flush();
+			out.close();
+			newDbInput.close();
+			
+			SharedPreferences.Editor editor = context.getSharedPreferences(PREF_FILE_NAME, Context.MODE_PRIVATE).edit();
+			editor.putInt(PREF_LAST_VERSION, DB_VERSION);
+			editor.commit();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error copying initial database", e);
+		}
+	}
+	
+	public void copyExistingDbToOtherLocation(File destFile) {
+		copyExistingDbToOtherLocation(mContext, destFile);
+	}
+	
+	public static void copyExistingDbToOtherLocation(Context context, File destFile) {
+		File dbFile = context.getDatabasePath(DB_NAME);
+		if (!dbFile.exists()) {
+			throw new RuntimeException("Database does not exist, cannot copy to another location");
+		}
+		try {
+			if (destFile.exists()) {
+				destFile.delete();
+			}
+			destFile.createNewFile();
+			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destFile));
+			FileInputStream fis = new FileInputStream(dbFile);
+			
+			int bytesRead = 0;
+			byte[] data = new byte[2048];
+			
+			while((bytesRead = fis.read(data, 0, data.length)) >= 0) {
+				out.write(data, 0, bytesRead);
+			}
+			out.flush();
+			out.close();
+			fis.close();
+			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("Error copying existing database to a new location.", e);
+		}
+	}
+	
+	public static File getDbFile(Context c) {
+		return c.getDatabasePath(DB_NAME);
+	}
+	
+	public File getDbFile() {
+		return mContext.getDatabasePath(DB_NAME);
+	}
+
+}

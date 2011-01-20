@@ -1,0 +1,47 @@
+/**************************************************
+ * {ClassName}.java
+ *
+{CopyrightNotice} **************************************************/
+ 
+package {PackageName}.database.objects;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteOpenHelper;
+import org.json.JSONObject;
+import {PackageName}.database.objects.base.Base{ClassName};
+
+public class {ClassName} extends Base{ClassName} {
+	
+	public {ClassName}(SQLiteOpenHelper dbm, Cursor c, boolean skipOk) {
+		super(dbm, c, skipOk);
+	}
+
+	public {ClassName}(SQLiteOpenHelper dbm, String jsonString, boolean skipOk) {
+		super(dbm, jsonString, skipOk);
+	}
+	
+	public {ClassName}(SQLiteOpenHelper dbm, JSONObject obj, boolean skipOk) {
+		super(dbm, obj, skipOk);
+	}
+	
+	public {ClassName}(SQLiteOpenHelper dbm, long id, boolean list) {
+		super(dbm, id, list);
+	}
+
+	public {ClassName}(SQLiteOpenHelper dbm) {
+		super(dbm);
+	}
+
+	@Override
+	protected void onBeforeDelete() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	protected void onAfterDelete() {
+		// TODO Auto-generated method stub
+
+	}
+
+}

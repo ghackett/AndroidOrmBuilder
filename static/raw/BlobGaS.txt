@@ -1,0 +1,36 @@
+	public ByteBuffer get{UcFieldName}() {
+		return {FieldValueVar};
+	}
+	
+	public byte[] get{UcFieldName}AsByteArray() {
+		if ({FieldValueVar} == null) {
+			return null;
+		} else {
+			return {FieldValueVar}.array();
+		}
+	}
+	
+	public Bitmap get{UcFieldName}AsBitmap() {
+		return get{UcFieldName}AsBitmap(null);
+	}
+	
+	public Bitmap get{UcFieldName}AsBitmap(BitmapFactory.Options bitmapOptions) {
+		if ({FieldValueVar} == null) {
+			return null;
+		} else {
+			byte[] bytes = get{UcFieldName}AsByteArray();
+			return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, bitmapOptions);
+		}
+	}
+
+	public void set{UcFieldName}Bytes(byte[] val) {
+		if (val == null) {
+			set{UcFieldName}(null);
+		} else {
+			set{UcFieldName}(ByteBuffer.wrap(val));
+		}
+	}
+	public void set{UcFieldName}(ByteBuffer val) {
+		this.{FieldValueVar} = val;
+		setIsDirty(true);
+	}

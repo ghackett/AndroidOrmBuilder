@@ -15,7 +15,7 @@ limitations under the License.
 
 
 *****************SETUP********************
-To use this app, you must host it. 
+To use this app, you must host it using php5.
 
 Just modify the base_url variable in system/application/config/config.php 
 and you should be good to go. If you have problems, check CodeIgniter.com

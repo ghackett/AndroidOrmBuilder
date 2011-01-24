@@ -19,7 +19,7 @@ if (!function_exists('describe_sqlite_database')) {
 			$tinfo['create_statement'] = $table['sql'];
 			$tinfo['columns'] = array();
 			
-			$q = $dbh->prepare("PRAGMA table_info(" . $table['name'] . ");");
+			$q = $dbh->prepare("PRAGMA table_info('" . $table['name'] . "');");
 			$q->execute();
 			$cols = $q->fetchAll();
 			$q->closeCursor();

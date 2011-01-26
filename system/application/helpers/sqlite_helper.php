@@ -116,7 +116,7 @@ if(!function_exists('get_sqlite_java_converter_array')) {
 			),
 			'DATETIME' => array(
 				'javaType' => "long",
-				'javaDefault' => "System.currentTimeMillis()",
+				'javaDefault' => "0", //"System.currentTimeMillis()",
 //				'javaHydrate' => "\t\t\t{SetterName}(c.getLong(c.getColumnIndexOrThrow({FieldNameVar})));",
 				'javaHydrate' => "\t\t\tString textVal = c.getString(c.getColumnIndexOrThrow({FieldNameVar}));\n\t\t\tif (textVal != null) {\n\t\t\t\ttry {\n\t\t\t\t\t{SetterName}(Long.parseLong(textVal));\n\t\t\t\t} catch (Exception e1) {\n\t\t\t\t\ttry {\n\t\t\t\t\t\t{SetterName}(SQLITE_DATE_FORMAT.parse(textVal));\n\t\t\t\t\t} catch (Exception e2) {e2.printStackTrace();}\n\t\t\t\t}\n\t\t\t}",
 				'javaCvPut' => "cv.put({FieldNameVar}, {FieldValueVar});",

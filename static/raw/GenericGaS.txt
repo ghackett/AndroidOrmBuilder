@@ -9,12 +9,10 @@
 	
 	public static {ClassName} findOneBy{UcFieldName}(SQLiteOpenHelper dbm, {FieldJavaType} val) {
 		Cursor c = dbm.getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, {FieldWhereClause}, null, null, null);
-		c.moveToFirst();
-		if (c.isAfterLast()) {
-			c.close();
-			return null;
-		} 
-		{ClassName} obj = new {ClassName}(dbm, c, false);
+		{ClassName} obj = null;
+		if (c.moveToFirst()) {
+			obj = new {ClassName}(dbm, c, false);
+		}
 		c.close();
 		return obj;
 	}
@@ -25,16 +23,13 @@
 	
 	public static List<{ClassName}> findManyBy{UcFieldName}(SQLiteOpenHelper dbm, {FieldJavaType} val, String orderBy) {
 		Cursor c = dbm.getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, {FieldWhereClause}, null, null, orderBy);
-		c.moveToFirst();
-		if (c.isAfterLast()) {
-			c.close();
-			return null;
-		} 
 		
 		ArrayList<{ClassName}> objList = new ArrayList<{ClassName}>();
-		while (!c.isAfterLast()) {
-			objList.add(new {ClassName}(dbm, c, false));
-			c.moveToNext();
+		if (c.moveToFirst()) {
+			while (!c.isAfterLast()) {
+				objList.add(new {ClassName}(dbm, c, false));
+				c.moveToNext();
+			}
 		}
 		c.close();
 		return objList;

@@ -19,6 +19,8 @@ public abstract class {CoPrefix}PersistentObject {
 	private long mId;
 	private SQLiteOpenHelper mDbManager;
 	public static final DateFormat SQLITE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	public static final String FIND_BY_FORMATTER = "%s = ?";
+	public static final String FIND_BY_AND_FORMATTER = "AND %s = ?";
 	
 	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm) {
 		setDbManager(dbm);

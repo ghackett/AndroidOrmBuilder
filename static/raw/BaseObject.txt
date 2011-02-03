@@ -145,6 +145,46 @@ public abstract class Base{ClassName} extends {CoPrefix}PersistentObject {
 		return getCount(dbm, null) == 0;
 	}
 	
+	public static {ClassName} findOneBy(SQLiteOpenHelper dbm, String orderBy, String... args) {
+		if (args.length%2 != 0)
+			throw new RuntimeException("Invalid findOneBy method call on {ClassName}");
+		StringBuilder argBuilder = new StringBuilder();
+		String[] selectArgs = new String[args.length/2];
+		for (int i = 0; i<selectArgs.length; i++) {
+			argBuilder.append(String.format((i == 0 ? FIND_BY_FORMATTER : FIND_BY_AND_FORMATTER), args[i*2]));
+			selectArgs[i] = args[(i*2)+1];
+		}
+		
+		Cursor c = dbm.getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, argBuilder.toString(), selectArgs, null, null, orderBy, "1");
+		{ClassName} rtr = null;
+		if (c.moveToFirst())
+			rtr = new {ClassName}(dbm, c, false);
+		c.close();
+		return rtr;
+	}
+	
+	public static List<{ClassName}> findManyBy(SQLiteOpenHelper dbm, String orderBy, String... args) {
+		if (args.length%2 != 0)
+			throw new RuntimeException("Invalid findManyBy method call on {ClassName}");
+		StringBuilder argBuilder = new StringBuilder();
+		String[] selectArgs = new String[args.length/2];
+		for (int i = 0; i<selectArgs.length; i++) {
+			argBuilder.append(String.format((i == 0 ? FIND_BY_FORMATTER : FIND_BY_AND_FORMATTER), args[i*2]));
+			selectArgs[i] = args[(i*2)+1];
+		}
+		
+		ArrayList<{ClassName}> list = new ArrayList<{ClassName}>();
+		Cursor c = dbm.getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, argBuilder.toString(), selectArgs, null, null, orderBy);
+		if (c.moveToFirst()) {
+			while (!c.isAfterLast()) {
+				list.add(new {ClassName}(dbm, c, false));
+				c.moveToNext();
+			}
+		}
+		c.close();
+		return list;
+	}
+	
 	public static int deleteById(SQLiteOpenHelper dbm, long id, boolean notEqual) {
 		return dbm.getWritableDatabase().delete(TABLE_NAME, {ObjPkFieldVar} + (notEqual ? " <> " : " = ") + id, null);
 	}

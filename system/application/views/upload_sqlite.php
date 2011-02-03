@@ -10,6 +10,7 @@
 		Project Prefix: <?=form_input('proj_prefix', '')?><br/>
 		Package Name (exclude .database): <?=form_input(array('name'=>"package_name", 'style' => "width:500px", 'value' => "com."));?><br/>
 		Include Prebuilt Db? <?=form_checkbox('include_prebuilt', 'true')?><br/>
+		Database Version Code: <?=form_input('db_version', '1')?><br/>
 		Upload Sqlite File: <?=form_upload("userfile");?><br/>
 		<br/>Copyright Notice:<br/><?=form_textarea('copyright_notice', "Created By YOURNAME on " . date("m/d/Y", time()) . ".\nCopyright " . date("Y", time()) . " COMPANYNAME, Inc. All rights reserved.")?><br/><br/>
 		<?=form_submit("submit", "Submit");?>

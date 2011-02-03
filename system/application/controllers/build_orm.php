@@ -30,6 +30,7 @@ class Build_orm extends Controller {
 			$packageName = $this->input->post("package_name");
 			$coPrefix = $this->input->post("co_prefix");
 			$projPrefix = $this->input->post("proj_prefix");
+			$dbVersion = $this->input->post("db_version");
 			$includePrebuilt = ($this->input->post("include_prebuilt") == "true");
 			$copyrightArray = explode("\n", $this->input->post("copyright_notice"));
 			
@@ -42,7 +43,7 @@ class Build_orm extends Controller {
 			
 			$this->load->library('zip');
 			$this->zip->clear_data();
-			$this->_buildAndroidOrm($packageName, $sqliteTables, $coPrefix, $projPrefix, $includePrebuilt, $filename, $copyrightArray);
+			$this->_buildAndroidOrm($packageName, $sqliteTables, $coPrefix, $projPrefix, $includePrebuilt, $filename, $copyrightArray, $dbVersion);
 			$this->zip->read_file($filepath);
 			$this->zip->download($packageName . ".database.zip");
 		} else {
@@ -54,7 +55,7 @@ class Build_orm extends Controller {
 		$this->load->view("upload_sqlite", array("error" => $error));
 	}
 	
-	function _buildAndroidOrm($packageName, $tableArray, $coPrefix, $projPrefix, $includePrebuilt, $sqliteFilename, $copyrightArray) {
+	function _buildAndroidOrm($packageName, $tableArray, $coPrefix, $projPrefix, $includePrebuilt, $sqliteFilename, $copyrightArray, $dbVersionCode) {
 
 		$SQLITE_TYPE_ARRAY = get_sqlite_java_converter_array();
 		
@@ -73,6 +74,7 @@ class Build_orm extends Controller {
 			'DbManagerDropAndCreate' => "",
 			'ObjectClassImports' => "",
 			'CopyrightNotice' => "",
+			'DbVersionCode' => $dbVersionCode,
 		);
 		
 		foreach($copyrightArray as $copy) {

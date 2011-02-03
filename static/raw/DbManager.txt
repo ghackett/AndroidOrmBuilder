@@ -20,7 +20,7 @@ import {PackageName}.R;
 
 public class {CoPrefix}DbManager extends SQLiteOpenHelper {
 	public static final String DB_NAME = "{SqliteFilenameFull}";
-	public static final int DB_VERSION = 1;
+	public static final int DB_VERSION = {DbVersionCode};
 	
 	private static final String PREF_FILE_NAME = "{PackageName}.db_prefs";
 	private static final String PREF_LAST_VERSION = "last_db_version";

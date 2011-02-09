@@ -84,6 +84,16 @@ if(!function_exists('get_sqlite_java_converter_array')) {
 				'javaToJSON' => "\t\t\tobj.put({FieldNameVar}, {FieldValueVar});",
 				'javaFromJSON' => "\t\t\t{FieldValueVar} = obj.getInt({FieldNameVar});",
 			),
+			'LONG' => array(
+				'javaType' => "long",
+				'javaDefault' => "0",
+				'javaHydrate' => "\t\t\t{SetterName}(c.getLong(c.getColumnIndexOrThrow({FieldNameVar})));",
+				'javaCvPut' => "cv.put({FieldNameVar}, {FieldValueVar});",
+				'javaGettersAndSetters' => $genericGS,
+				'javaFind' => "{FieldNameVar} + \" = \" + val, null",
+				'javaToJSON' => "\t\t\tobj.put({FieldNameVar}, {FieldValueVar});",
+				'javaFromJSON' => "\t\t\t{FieldValueVar} = obj.getLong({FieldNameVar});",
+			),
 			'CHAR' => array(
 				'javaType' => "char",
 				'javaDefault' => "(char) 0x0",

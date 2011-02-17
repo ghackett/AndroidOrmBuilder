@@ -2,7 +2,7 @@
 {SingleHydrateProcedure}
 		} catch (Exception e) {
 			if (!skipOk) {
-				e.printStackTrace();
+				//e.printStackTrace();
 				throw new PersistentObjectHydrateException({HydrateErrorVarName}, e);
 			} else {
 				setIsComplete(false);

@@ -30,12 +30,50 @@ public abstract class Base{ClassName} extends {CoPrefix}PersistentObject {
 	
 	public static final String[] ALL_COLUMN_NAMES = new String[] {{ObjFieldNameColList}};
 	
-	public static final String CREATE_TABLE_STATEMENT = "{ObjCreateTableStatement}";
-	public static final String DROP_TABLE_STATEMENT = "{ObjDropTableStatement}";
+	private static final String CREATE_TABLE_STATEMENT = "{ObjCreateTableStatement}";
+	private static final String DROP_TABLE_STATEMENT = "{ObjDropTableStatement}";
 	
 	private static final String COUNT_STATEMENT = "SELECT COUNT(" + {ObjPkFieldVar} + ") FROM {SqliteTableName}";
 	
 	private static final String EMPTY_STRING = "";
+	
+	public static void createTable(SQLiteDatabase db) {
+		db.execSQL(DROP_TABLE_STATEMENT);
+		db.execSQL(CREATE_TABLE_STATEMENT);
+	}
+	
+	public static void upgradeTable(SQLiteDatabase db) {
+		try {
+			db.execSQL(String.format("ALTER TABLE \"%s\" RENAME TO \"%s_old\";", TABLE_NAME, TABLE_NAME));
+			StringBuilder sBuilder = null;
+			Cursor c = db.rawQuery(String.format("PRAGMA table_info(\"%s_old\");", TABLE_NAME), null);
+			if (c.moveToFirst()) {
+				while (!c.isAfterLast()) {
+					String colName = c.getString(c.getColumnIndexOrThrow("name"));
+					if (sBuilder == null) {
+						sBuilder = new StringBuilder();
+					} else {
+						sBuilder.append(", ");
+					}
+					sBuilder.append(colName);
+					
+					c.moveToNext();
+				}
+			}
+			c.close();
+			
+			createTable(db);
+			if (sBuilder != null) {
+				String colList = sBuilder.toString();
+				db.execSQL(String.format("INSERT INTO \"%s\" (%s) (SELECT %s FROM %s_old);", TABLE_NAME, colList, colList, TABLE_NAME));
+				db.execSQL(String.format("DROP TABLE IF EXISTS \"%s_old\";" , TABLE_NAME));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			createTable(db);
+		}
+	}
 	
 {ObjFieldDefs}
 	

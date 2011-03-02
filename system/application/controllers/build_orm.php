@@ -84,8 +84,10 @@ class Build_orm extends Controller {
 		
 		foreach($tableArray as $table) {
 			$tblReplace = $this->_buildObjectArray($table, $projPrefix, $SQLITE_TYPE_ARRAY);
-			$globalReplaceArray['DbManagerDropAndCreate'] .= "\n\t\t\tdb.execSQL(" . $tblReplace['ClassName'] . ".DROP_TABLE_STATEMENT);";
-			$globalReplaceArray['DbManagerDropAndCreate'] .= "\n\t\t\tdb.execSQL(" . $tblReplace['ClassName'] . ".CREATE_TABLE_STATEMENT);";
+			$globalReplaceArray['DbManagerCreateDb'] .= "\n\t\t\t" . $tblReplace['ClassName'] . ".createTable(db);";
+			$globalReplaceArray['DbManagerUpgradeDb'] .= "\n\t\t\t" . $tblReplace['ClassName'] . ".upgradeTable(db);";
+			// $globalReplaceArray['DbManagerDropAndCreate'] .= "\n\t\t\tdb.execSQL(" . $tblReplace['ClassName'] . ".DROP_TABLE_STATEMENT);";
+			// $globalReplaceArray['DbManagerDropAndCreate'] .= "\n\t\t\tdb.execSQL(" . $tblReplace['ClassName'] . ".CREATE_TABLE_STATEMENT);";
 			$globalReplaceArray['ObjectClassImports'] .= "import $packageName.database.objects." . $tblReplace['ClassName'] . ";\n";
 			
 			$base = $this->_replaceFromArrayKeys($this->_replaceFromArrayKeys($BASE_OBJECT, $tblReplace), $globalReplaceArray);
@@ -96,7 +98,8 @@ class Build_orm extends Controller {
 		}
 		
 		foreach($sqliteIndecies as $index) {
-			$globalReplaceArray['DbManagerDropAndCreate'] .= "\n\t\t\tdb.execSQL(\"" . str_replace("\"", "\\\"", $index) . "\");";
+			$globalReplaceArray['DbManagerCreateDb'] .= "\n\t\t\tdb.execSQL(\"" . str_replace("\"", "\\\"", $index) . "\");";
+			$globalReplaceArray['DbManagerUpgradeDb'] .= "\n\t\t\tdb.execSQL(\"" . str_replace("\"", "\\\"", $index) . "\");";
 		}
 		
 		$persObj = $this->_replaceFromArrayKeys($PERSISTENT_OBJECT, $globalReplaceArray);

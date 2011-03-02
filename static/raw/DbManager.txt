@@ -42,14 +42,14 @@ public class {CoPrefix}DbManager extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		if (!PRE_BUILT_DB_INCLUDED) {
-{DbManagerDropAndCreate}
+{DbManagerCreateDb}
 		}
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		if (!PRE_BUILT_DB_INCLUDED) {
-{DbManagerDropAndCreate}
+{DbManagerUpgradeDb}
 		}
 	}
 	

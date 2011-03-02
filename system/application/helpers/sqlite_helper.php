@@ -11,6 +11,7 @@ if (!function_exists('get_sqlite_indecies')) {
 		$sqliteIndecies = array();
 		
 		foreach ($indexInfo as $index) {
+			$sqliteIndecies[] = "DROP INDEX IF EXISTS \"" . $index['name'] . "\";";
 			$sqliteIndecies[] = $index['sql'];
 		}
 		return $sqliteIndecies;

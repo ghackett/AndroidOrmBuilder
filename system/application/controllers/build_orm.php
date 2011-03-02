@@ -39,11 +39,12 @@ class Build_orm extends Controller {
 			$this->load->helper("sqlite");
 			
 			$sqliteTables = describe_sqlite_database($filepath);
+			$sqliteIndecies = get_sqlite_indecies($filepath);
 			$filename = $uploadData['orig_name'];
 			
 			$this->load->library('zip');
 			$this->zip->clear_data();
-			$this->_buildAndroidOrm($packageName, $sqliteTables, $coPrefix, $projPrefix, $includePrebuilt, $filename, $copyrightArray, $dbVersion);
+			$this->_buildAndroidOrm($packageName, $sqliteTables, $coPrefix, $projPrefix, $includePrebuilt, $filename, $copyrightArray, $dbVersion, $sqliteIndecies);
 			$this->zip->read_file($filepath);
 			$this->zip->download($packageName . ".database.zip");
 		} else {
@@ -55,7 +56,7 @@ class Build_orm extends Controller {
 		$this->load->view("upload_sqlite", array("error" => $error));
 	}
 	
-	function _buildAndroidOrm($packageName, $tableArray, $coPrefix, $projPrefix, $includePrebuilt, $sqliteFilename, $copyrightArray, $dbVersionCode) {
+	function _buildAndroidOrm($packageName, $tableArray, $coPrefix, $projPrefix, $includePrebuilt, $sqliteFilename, $copyrightArray, $dbVersionCode, $sqliteIndecies) {
 
 		$SQLITE_TYPE_ARRAY = get_sqlite_java_converter_array();
 		
@@ -92,6 +93,10 @@ class Build_orm extends Controller {
 			
 			$this->zip->add_data("database/objects/base/Base" . $tblReplace['ClassName'] . ".java" , $base);
 			$this->zip->add_data("database/objects/" . $tblReplace['ClassName'] . ".java" , $obj);
+		}
+		
+		foreach($sqliteIndecies as $index) {
+			$globalReplaceArray['DbManagerDropAndCreate'] .= "\n\t\t\tdb.execSQL(" . str_replace("\""", "\\\""", $index) . ");";
 		}
 		
 		$persObj = $this->_replaceFromArrayKeys($PERSISTENT_OBJECT, $globalReplaceArray);

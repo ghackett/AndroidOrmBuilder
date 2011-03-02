@@ -1,5 +1,22 @@
 <?php
 
+if (!function_exists('get_sqlite_indecies')) {
+	function get_sqlite_indecies($dbFilePath) {
+		$dbh = new PDO("sqlite:" . $dbFilePath);
+		$pragmaQuery = $dbh->prepare("select * from sqlite_master WHERE type='index';");
+		$pragmaQuery->execute();
+		$indexInfo = $pragmaQuery->fetchAll();
+		$pragmaQuery->closeCursor();
+
+		$sqliteIndecies = array();
+		
+		foreach ($indexInfo as $index) {
+			$sqliteIndecies[] = $index['sql'];
+		}
+		return $sqliteIndecies;
+	}
+}
+
 if (!function_exists('describe_sqlite_database')) {
 	function describe_sqlite_database($dbFilePath) {
 		$dbh = new PDO("sqlite:" . $dbFilePath);

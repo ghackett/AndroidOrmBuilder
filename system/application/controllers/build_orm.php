@@ -96,7 +96,7 @@ class Build_orm extends Controller {
 		}
 		
 		foreach($sqliteIndecies as $index) {
-			$globalReplaceArray['DbManagerDropAndCreate'] .= "\n\t\t\tdb.execSQL(" . str_replace("\"", "\\\"", $index) . ");";
+			$globalReplaceArray['DbManagerDropAndCreate'] .= "\n\t\t\tdb.execSQL(\"" . str_replace("\"", "\\\"", $index) . "\");";
 		}
 		
 		$persObj = $this->_replaceFromArrayKeys($PERSISTENT_OBJECT, $globalReplaceArray);

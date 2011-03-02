@@ -56,8 +56,9 @@ public abstract class Base{ClassName} extends {CoPrefix}PersistentObject {
 					} else {
 						sBuilder.append(", ");
 					}
+					sBuilder.append("\"");
 					sBuilder.append(colName);
-					
+					sBuilder.append("\"");
 					c.moveToNext();
 				}
 			}
@@ -66,7 +67,7 @@ public abstract class Base{ClassName} extends {CoPrefix}PersistentObject {
 			createTable(db);
 			if (sBuilder != null) {
 				String colList = sBuilder.toString();
-				db.execSQL(String.format("INSERT INTO \"%s\" (%s) (SELECT %s FROM %s_old);", TABLE_NAME, colList, colList, TABLE_NAME));
+				db.execSQL(String.format("INSERT INTO \"%s\" (%s) SELECT %s FROM \"%s_old\";", TABLE_NAME, colList, colList, TABLE_NAME));
 				db.execSQL(String.format("DROP TABLE IF EXISTS \"%s_old\";" , TABLE_NAME));
 			}
 

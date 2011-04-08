@@ -45,7 +45,7 @@ class Build_orm extends Controller {
 			
 			$this->load->library('zip');
 			$this->zip->clear_data();
-			$this->_buildAndroidOrm($packageName, $sqliteTables, $coPrefix, $projPrefix, $includePrebuilt, $filename, $copyrightArray, $dbVersion, $sqliteIndecies, $singleton);
+			$this->_buildAndroidOrm($packageName, $sqliteTables, $coPrefix, $projPrefix, $includePrebuilt, $filename, $copyrightArray, $dbVersion, $sqliteIndecies, $singletonMode);
 			$this->zip->read_file($filepath);
 			$this->zip->download($packageName . ".database.zip");
 		} else {

@@ -1,0 +1,33 @@
+	public {CoPrefix}PersistentObject() {
+		initNewObject();
+	}
+	
+	public {CoPrefix}PersistentObject(long id, boolean list) {
+		setIsComplete(!list);
+		hydrate(id);
+	}
+	
+	
+	public {CoPrefix}PersistentObject(Cursor c, boolean skipOk) {
+		hydrate(c, skipOk);
+	}
+	
+	public {CoPrefix}PersistentObject(String jsonString, boolean skipOk) {
+		initNewObject();
+		try {
+			hydrate(new JSONObject(jsonString), skipOk);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public {CoPrefix}PersistentObject(JSONObject obj, boolean skipOk) {
+		initNewObject();
+		hydrate(obj, skipOk);
+	}
+
+	
+	public SQLiteOpenHelper getDbManager() {
+		return {CoPrefix}DbManager getInstance();
+	}

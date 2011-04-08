@@ -1,0 +1,44 @@
+
+	private SQLiteOpenHelper mDbManager;	
+	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm) {
+		setDbManager(dbm);
+		initNewObject();
+	}
+	
+	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm, long id, boolean list) {
+		setDbManager(dbm);
+		setIsComplete(!list);
+		hydrate(id);
+	}
+	
+	
+	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm, Cursor c, boolean skipOk) {
+		setDbManager(dbm);
+		hydrate(c, skipOk);
+	}
+	
+	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm, String jsonString, boolean skipOk) {
+		setDbManager(dbm);
+		initNewObject();
+		try {
+			hydrate(new JSONObject(jsonString), skipOk);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm, JSONObject obj, boolean skipOk) {
+		setDbManager(dbm);
+		initNewObject();
+		hydrate(obj, skipOk);
+	}
+
+
+	public void setDbManager(SQLiteOpenHelper dbm) {
+		mDbManager = dbm;
+	}
+	
+	public SQLiteOpenHelper getDbManager() {
+		return mDbManager;
+	}

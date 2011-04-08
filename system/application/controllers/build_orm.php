@@ -67,6 +67,7 @@ class Build_orm extends Controller {
 		$BASE_OBJECT = file_get_contents(BASEPATH . "../static/raw/BaseObject.txt");
 		$OBJECT = file_get_contents(BASEPATH . "../static/raw/Object.txt");
 		
+		$PERS_OBJ_TOP = NULL;
 		
 		$globalReplaceArray = array(
 			'PackageName' => $packageName,
@@ -79,8 +80,16 @@ class Build_orm extends Controller {
 			'DbMgrSingleton' => "",
 			'ObjectClassImports' => "",
 			'CopyrightNotice' => "",
+			'PersistentObjectTop' => "",
 			'DbVersionCode' => $dbVersionCode,
 		);
+		
+		if ($singleton) {
+			$PERS_OBJ_TOP = $this->_replaceFromArrayKeys(file_get_contents(BASEPATH . "../static/raw/PersistentObject-Top-Singleton.txt"), $globalReplaceArray);
+		} else {
+			$PERS_OBJ_TOP = $this->_replaceFromArrayKeys(file_get_contents(BASEPATH . "../static/raw/PersistentObject-Top-Normal.txt"), $globalReplaceArray);
+		}
+		$globalReplaceArray['PersistentObjectTop'] = $PERS_OBJ_TOP;
 		
 		foreach($copyrightArray as $copy) {
 			$globalReplaceArray['CopyrightNotice'] .= " * " . $copy . "\n";

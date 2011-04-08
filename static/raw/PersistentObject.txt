@@ -17,53 +17,11 @@ public abstract class {CoPrefix}PersistentObject {
 	
 	private boolean mIsNew, mIsDirty, mIsComplete;
 	private long mId;
-	private SQLiteOpenHelper mDbManager;
 	public static final DateFormat SQLITE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public static final String FIND_BY_FORMATTER = "%s = ?";
 	public static final String FIND_BY_AND_FORMATTER = "AND %s = ?";
 	
-	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm) {
-		setDbManager(dbm);
-		initNewObject();
-	}
-	
-	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm, long id, boolean list) {
-		setDbManager(dbm);
-		setIsComplete(!list);
-		hydrate(id);
-	}
-	
-	
-	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm, Cursor c, boolean skipOk) {
-		setDbManager(dbm);
-		hydrate(c, skipOk);
-	}
-	
-	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm, String jsonString, boolean skipOk) {
-		setDbManager(dbm);
-		initNewObject();
-		try {
-			hydrate(new JSONObject(jsonString), skipOk);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public {CoPrefix}PersistentObject(SQLiteOpenHelper dbm, JSONObject obj, boolean skipOk) {
-		setDbManager(dbm);
-		initNewObject();
-		hydrate(obj, skipOk);
-	}
-
-
-	public void setDbManager(SQLiteOpenHelper dbm) {
-		mDbManager = dbm;
-	}
-	
-	public SQLiteOpenHelper getDbManager() {
-		return mDbManager;
-	}
+{PersistentObjectTop}
 	
 	protected void initNewObject() {
 		setId(0);

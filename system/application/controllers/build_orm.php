@@ -59,7 +59,7 @@ class Build_orm extends Controller {
 	
 	function _buildAndroidOrm($packageName, $tableArray, $coPrefix, $projPrefix, $includePrebuilt, $sqliteFilename, $copyrightArray, $dbVersionCode, $sqliteIndecies, $singleton) {
 
-		$SQLITE_TYPE_ARRAY = get_sqlite_java_converter_array();
+		$SQLITE_TYPE_ARRAY = get_sqlite_java_converter_array($singleton);
 		
 		$PERSISTENT_OBJECT = file_get_contents(BASEPATH . "../static/raw/PersistentObject.txt");
 		$DB_MANAGER = file_get_contents(BASEPATH . "../static/raw/DbManager.txt");

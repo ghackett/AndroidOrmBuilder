@@ -59,8 +59,8 @@ if (!function_exists('describe_sqlite_database')) {
 }
 
 if(!function_exists('get_sqlite_java_converter_array')) {
-	function get_sqlite_java_converter_array() {
-		$genericGS = file_get_contents(BASEPATH . "../static/raw/GenericGaS.txt");
+	function get_sqlite_java_converter_array($singleton) {
+		$genericGS = ($singleton ? file_get_contents(BASEPATH . "../static/raw/GenericGaS-Singleton.txt") : file_get_contents(BASEPATH . "../static/raw/GenericGaS.txt"));
 		$sqliteTypeArray = array(
 			'BOOL' => array(
 				'javaType' => "boolean",

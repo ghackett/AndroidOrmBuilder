@@ -10,7 +10,6 @@ import java.util.Date;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -199,7 +198,7 @@ public abstract class Base{ClassName} extends {CoPrefix}PersistentObject {
 		Cursor c = {CoPrefix}DbManager.getInstance().getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, argBuilder.toString(), selectArgs, null, null, orderBy, "1");
 		{ClassName} rtr = null;
 		if (c.moveToFirst())
-			rtr = new {ClassName}(dbm, c, false);
+			rtr = new {ClassName}(c, false);
 		c.close();
 		return rtr;
 	}

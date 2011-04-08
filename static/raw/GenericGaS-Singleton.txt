@@ -1,0 +1,40 @@
+	public {FieldJavaType} get{UcFieldName}() {
+		return {FieldValueVar};
+	}
+
+	public void set{UcFieldName}({FieldJavaType} val) {
+		this.{FieldValueVar} = val;
+		setIsDirty(true);
+	}
+	
+	public static {ClassName} findOneBy{UcFieldName}({FieldJavaType} val) {
+		Cursor c = {CoPrefix}DbManager.getInstance().getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, {FieldWhereClause}, null, null, null);
+		{ClassName} obj = null;
+		if (c.moveToFirst()) {
+			obj = new {ClassName}(c, false);
+		}
+		c.close();
+		return obj;
+	}
+	
+	public static List<{ClassName}> findManyBy{UcFieldName}({FieldJavaType} val) {
+		return findManyBy{UcFieldName}(val, null);
+	}
+	
+	public static List<{ClassName}> findManyBy{UcFieldName}({FieldJavaType} val, String orderBy) {
+		Cursor c = {CoPrefix}DbManager.getInstance().getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, {FieldWhereClause}, null, null, orderBy);
+		
+		ArrayList<{ClassName}> objList = new ArrayList<{ClassName}>();
+		if (c.moveToFirst()) {
+			while (!c.isAfterLast()) {
+				objList.add(new {ClassName}(c, false));
+				c.moveToNext();
+			}
+		}
+		c.close();
+		return objList;
+	}
+	
+	public static int deleteBy{UcFieldName}({FieldJavaType} val) {
+		return {CoPrefix}DbManager.getInstance().getWritableDatabase().delete(TABLE_NAME, {FieldWhereClause});
+	}

@@ -1,4 +1,4 @@
-	private static final {CoPrefix}DbManager DB_MGR_INSTANCE = null;
+	private static {CoPrefix}DbManager DB_MGR_INSTANCE = null;
 	public static void init(Context c) {
 		if (DB_MGR_INSTANCE == null) {
 			DB_MGR_INSTANCE = new {CoPrefix}DbManager(c);

@@ -28,6 +28,6 @@
 	}
 
 	
-	public SQLiteOpenHelper getDbManager() {
+	public static SQLiteOpenHelper getDbManager() {
 		return {CoPrefix}DbManager.getInstance();
 	}

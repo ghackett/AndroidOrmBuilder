@@ -32,6 +32,7 @@ class Build_orm extends Controller {
 			$projPrefix = $this->input->post("proj_prefix");
 			$dbVersion = $this->input->post("db_version");
 			$includePrebuilt = ($this->input->post("include_prebuilt") == "true");
+			$singletonMode = ($this->input->post("singleton") == "true");
 			$copyrightArray = explode("\n", $this->input->post("copyright_notice"));
 			
 			$uploadData = $this->upload->data();
@@ -44,7 +45,7 @@ class Build_orm extends Controller {
 			
 			$this->load->library('zip');
 			$this->zip->clear_data();
-			$this->_buildAndroidOrm($packageName, $sqliteTables, $coPrefix, $projPrefix, $includePrebuilt, $filename, $copyrightArray, $dbVersion, $sqliteIndecies);
+			$this->_buildAndroidOrm($packageName, $sqliteTables, $coPrefix, $projPrefix, $includePrebuilt, $filename, $copyrightArray, $dbVersion, $sqliteIndecies, $singleton);
 			$this->zip->read_file($filepath);
 			$this->zip->download($packageName . ".database.zip");
 		} else {
@@ -56,12 +57,13 @@ class Build_orm extends Controller {
 		$this->load->view("upload_sqlite", array("error" => $error));
 	}
 	
-	function _buildAndroidOrm($packageName, $tableArray, $coPrefix, $projPrefix, $includePrebuilt, $sqliteFilename, $copyrightArray, $dbVersionCode, $sqliteIndecies) {
+	function _buildAndroidOrm($packageName, $tableArray, $coPrefix, $projPrefix, $includePrebuilt, $sqliteFilename, $copyrightArray, $dbVersionCode, $sqliteIndecies, $singleton) {
 
 		$SQLITE_TYPE_ARRAY = get_sqlite_java_converter_array();
 		
 		$PERSISTENT_OBJECT = file_get_contents(BASEPATH . "../static/raw/PersistentObject.txt");
 		$DB_MANAGER = file_get_contents(BASEPATH . "../static/raw/DbManager.txt");
+		$DB_MANAGER_SINGLETON = file_get_contents(BASEPATH . "../static/raw/DbManager-Singleton.txt");
 		$BASE_OBJECT = file_get_contents(BASEPATH . "../static/raw/BaseObject.txt");
 		$OBJECT = file_get_contents(BASEPATH . "../static/raw/Object.txt");
 		
@@ -74,6 +76,7 @@ class Build_orm extends Controller {
 			'PrebuiltIncluded' => ($includePrebuilt ? "true" : "false"),
 			'DbManagerCreateDb' => "",
 			'DbManagerUpgradeDb' => "",
+			'DbMgrSingleton' => "",
 			'ObjectClassImports' => "",
 			'CopyrightNotice' => "",
 			'DbVersionCode' => $dbVersionCode,
@@ -103,8 +106,14 @@ class Build_orm extends Controller {
 			$globalReplaceArray['DbManagerUpgradeDb'] .= "\n\t\t\tdb.execSQL(\"" . str_replace("\"", "\\\"", $index) . "\");";
 		}
 		
+		if ($singleton) {
+			$globalReplaceArray['DbMgrSingleton'] = $this->_replaceFromArrayKeys($DB_MANAGER_SINGLETON, $globalReplaceArray);
+		}
+		
 		$persObj = $this->_replaceFromArrayKeys($PERSISTENT_OBJECT, $globalReplaceArray);
 		$dbManager = $this->_replaceFromArrayKeys($DB_MANAGER, $globalReplaceArray);
+		
+		
 		
 		$this->zip->add_data("database/" . $globalReplaceArray['CoPrefix'] . "PersistentObject.java" , $persObj);
 		$this->zip->add_data("database/" . $globalReplaceArray['CoPrefix'] . "DbManager.java" , $dbManager);

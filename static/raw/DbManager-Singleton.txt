@@ -1,0 +1,15 @@
+	private static final {CoPrefix}DbManager DB_MGR_INSTANCE = null;
+	public static void init(Context c) {
+		if (DB_MGR_INSTANCE == null) {
+			DB_MGR_INSTANCE = new {CoPrefix}DbManager(c);
+		}
+	}
+	public static void destroy() {
+		if (DB_MGR_INSTANCE != null) {
+			DB_MGR_INSTANCE.close();
+			DB_MGR_INSTANCE = null;
+		}
+	}
+	public static {CoPrefix}DbManager getInstance() {
+		return DB_MGR_INSTANCE;
+	}

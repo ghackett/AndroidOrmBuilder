@@ -64,8 +64,8 @@ class Build_orm extends Controller {
 		$PERSISTENT_OBJECT = file_get_contents(BASEPATH . "../static/raw/PersistentObject.txt");
 		$DB_MANAGER = file_get_contents(BASEPATH . "../static/raw/DbManager.txt");
 		$DB_MANAGER_SINGLETON = file_get_contents(BASEPATH . "../static/raw/DbManager-Singleton.txt");
-		$BASE_OBJECT = file_get_contents(BASEPATH . "../static/raw/BaseObject.txt");
-		$OBJECT = file_get_contents(BASEPATH . "../static/raw/Object.txt");
+		$BASE_OBJECT = ($singleton ? file_get_contents(BASEPATH . "../static/raw/BaseObject-Singleton.txt") : file_get_contents(BASEPATH . "../static/raw/BaseObject.txt"));
+		$OBJECT = ($singleton ? file_get_contents(BASEPATH . "../static/raw/Object-Singleton.txt") : file_get_contents(BASEPATH . "../static/raw/Object.txt"));
 		
 		$PERS_OBJ_TOP = NULL;
 		

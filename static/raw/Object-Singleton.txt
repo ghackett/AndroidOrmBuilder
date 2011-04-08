@@ -1,0 +1,47 @@
+/**************************************************
+ * {ClassName}.java
+ *
+{CopyrightNotice} **************************************************/
+ 
+package {PackageName}.database.objects;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteOpenHelper;
+import org.json.JSONObject;
+import {PackageName}.database.objects.base.Base{ClassName};
+
+public class {ClassName} extends Base{ClassName} {
+	
+	public {ClassName}(Cursor c, boolean skipOk) {
+		super(c, skipOk);
+	}
+
+	public {ClassName}(String jsonString, boolean skipOk) {
+		super(jsonString, skipOk);
+	}
+	
+	public {ClassName}(JSONObject obj, boolean skipOk) {
+		super(obj, skipOk);
+	}
+	
+	public {ClassName}(long id, boolean list) {
+		super(id, list);
+	}
+
+	public {ClassName}() {
+		super();
+	}
+
+	@Override
+	protected void onBeforeDelete() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	protected void onAfterDelete() {
+		// TODO Auto-generated method stub
+
+	}
+
+}

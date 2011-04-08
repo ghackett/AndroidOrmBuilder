@@ -29,5 +29,5 @@
 
 	
 	public SQLiteOpenHelper getDbManager() {
-		return {CoPrefix}DbManager getInstance();
+		return {CoPrefix}DbManager.getInstance();
 	}

@@ -1,0 +1,271 @@
+/**************************************************
+ * Base{ClassName}.java
+ *
+{CopyrightNotice} **************************************************/
+ 
+package {PackageName}.database.objects.base;
+
+import java.nio.ByteBuffer;
+import java.util.Date;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import java.util.ArrayList;
+import java.util.List;
+import org.json.JSONObject;
+import {PackageName}.database.{CoPrefix}PersistentObject;
+import {PackageName}.database.objects.{ClassName};
+import {PackageName}.database.{CoPrefix}DbManager;
+
+public abstract class Base{ClassName} extends {CoPrefix}PersistentObject {
+	
+	private static final String ERROR_MSG_CLOSED_CURSOR = "Tried to hyrdate {ClassName} from closed cursor.";
+{ObjErrorMsgs}
+	
+	public static final String TABLE_NAME = "{SqliteTableName}";
+	
+{ObjFieldNamesDefs}
+	
+	public static final String[] ALL_COLUMN_NAMES = new String[] {{ObjFieldNameColList}};
+	
+	private static final String CREATE_TABLE_STATEMENT = "{ObjCreateTableStatement}";
+	private static final String DROP_TABLE_STATEMENT = "{ObjDropTableStatement}";
+	
+	private static final String COUNT_STATEMENT = "SELECT COUNT(" + {ObjPkFieldVar} + ") FROM {SqliteTableName}";
+	
+	private static final String EMPTY_STRING = "";
+	
+	public static void createTable(SQLiteDatabase db) {
+		db.execSQL(DROP_TABLE_STATEMENT);
+		db.execSQL(CREATE_TABLE_STATEMENT);
+	}
+	
+	public static void upgradeTable(SQLiteDatabase db) {
+		try {
+			db.execSQL(String.format("ALTER TABLE \"%s\" RENAME TO \"%s_old\";", TABLE_NAME, TABLE_NAME));
+			StringBuilder sBuilder = null;
+			Cursor c = db.rawQuery(String.format("PRAGMA table_info(\"%s_old\");", TABLE_NAME), null);
+			if (c.moveToFirst()) {
+				while (!c.isAfterLast()) {
+					String colName = c.getString(c.getColumnIndexOrThrow("name"));
+					if (sBuilder == null) {
+						sBuilder = new StringBuilder();
+					} else {
+						sBuilder.append(", ");
+					}
+					sBuilder.append("\"");
+					sBuilder.append(colName);
+					sBuilder.append("\"");
+					c.moveToNext();
+				}
+			}
+			c.close();
+			
+			createTable(db);
+			if (sBuilder != null) {
+				String colList = sBuilder.toString();
+				db.execSQL(String.format("INSERT INTO \"%s\" (%s) SELECT %s FROM \"%s_old\";", TABLE_NAME, colList, colList, TABLE_NAME));
+				db.execSQL(String.format("DROP TABLE IF EXISTS \"%s_old\";" , TABLE_NAME));
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			createTable(db);
+		}
+	}
+	
+{ObjFieldDefs}
+	
+	public Base{ClassName}(Cursor c, boolean skipOk) {
+		super(c, skipOk);
+	}
+	
+	public Base{ClassName}(String jsonString, boolean skipOk) {
+		super(jsonString, skipOk);
+	}
+	
+	public Base{ClassName}(JSONObject obj, boolean skipOk) {
+		super(obj, skipOk);
+	}
+
+	public Base{ClassName}(long id, boolean list) {
+		super(id, list);
+	}
+
+	public Base{ClassName}() {
+		super();
+	}
+
+	@Override
+	protected void initNewObject() {
+		super.initNewObject();
+{ObjFieldInit}
+	}
+
+	@Override
+	public String getTableName() {
+		return TABLE_NAME;
+	}
+
+	@Override
+	public String[] getAllColumnNames() {
+		return ALL_COLUMN_NAMES;
+	}
+
+	@Override
+	public String getIdColumnName() {
+		return {ObjPkFieldVar};
+	}
+
+	@Override
+	public String getCreateTableStatement() {
+		return CREATE_TABLE_STATEMENT;
+	}
+
+	@Override
+	public void hydrate(Cursor c, boolean skipOk) {
+		if (c.isClosed()) {
+			throw new PersistentObjectHydrateException(ERROR_MSG_CLOSED_CURSOR);
+		}
+		
+		
+{ObjHydrateProcedure}
+		
+		
+		setIsDirty(false);
+	}
+	
+	@Override
+	public void hydrate(JSONObject obj, boolean skipOk) {
+{ObjJSONHydrate}
+		setIsDirty(true);
+		setIsNew(true);
+	}
+	
+	@Override
+	public JSONObject getJSONObject() {
+		try {
+			JSONObject obj = new JSONObject();
+{ObjJSONCreate}
+			return obj;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public ContentValues getContentValues() {
+		ContentValues cv = new ContentValues({ObjNumFieldsSubPk});
+{ObjPuCvProcedure}
+		return cv;
+	}
+	
+	public static long getCount() {
+		return getCount(null);
+	}
+	
+	public static long getCount(String whereClause) {
+		long count = 0;
+		SQLiteStatement stmt = null;
+		if (whereClause == null) {
+			stmt = {CoPrefix}DbManager.getInstance().getReadableDatabase().compileStatement(COUNT_STATEMENT);
+		} else {
+			stmt = {CoPrefix}DbManager.getInstance().getReadableDatabase().compileStatement(COUNT_STATEMENT + " WHERE " + whereClause);
+		}
+		count = stmt.simpleQueryForLong();
+		stmt.close();
+		return count;
+	}
+	
+	public static boolean isTableEmpty() {
+		return getCount(null) == 0;
+	}
+	
+	public static {ClassName} findOneBy(String orderBy, String... args) {
+		if (args.length%2 != 0)
+			throw new RuntimeException("Invalid findOneBy method call on {ClassName}");
+		StringBuilder argBuilder = new StringBuilder();
+		String[] selectArgs = new String[args.length/2];
+		for (int i = 0; i<selectArgs.length; i++) {
+			argBuilder.append(String.format((i == 0 ? FIND_BY_FORMATTER : FIND_BY_AND_FORMATTER), args[i*2]));
+			selectArgs[i] = args[(i*2)+1];
+		}
+		
+		Cursor c = {CoPrefix}DbManager.getInstance().getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, argBuilder.toString(), selectArgs, null, null, orderBy, "1");
+		{ClassName} rtr = null;
+		if (c.moveToFirst())
+			rtr = new {ClassName}(dbm, c, false);
+		c.close();
+		return rtr;
+	}
+	
+	public static List<{ClassName}> findManyBy(String orderBy, String... args) {
+		if (args.length%2 != 0)
+			throw new RuntimeException("Invalid findManyBy method call on {ClassName}");
+		StringBuilder argBuilder = new StringBuilder();
+		String[] selectArgs = new String[args.length/2];
+		for (int i = 0; i<selectArgs.length; i++) {
+			argBuilder.append(String.format((i == 0 ? FIND_BY_FORMATTER : FIND_BY_AND_FORMATTER), args[i*2]));
+			selectArgs[i] = args[(i*2)+1];
+		}
+		
+		ArrayList<{ClassName}> list = new ArrayList<{ClassName}>();
+		Cursor c = {CoPrefix}DbManager.getInstance().getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, argBuilder.toString(), selectArgs, null, null, orderBy);
+		if (c.moveToFirst()) {
+			while (!c.isAfterLast()) {
+				list.add(new {ClassName}(c, false));
+				c.moveToNext();
+			}
+		}
+		c.close();
+		return list;
+	}
+	
+	public static int deleteById(long id, boolean notEqual) {
+		return {CoPrefix}DbManager.getInstance().getWritableDatabase().delete(TABLE_NAME, {ObjPkFieldVar} + (notEqual ? " <> " : " = ") + id, null);
+	}
+	
+	public static int deleteByIds(List<Long> idsToDelete, boolean notIn) {
+		String idList = "";
+		for (int i = 0; i<idsToDelete.size(); i++) {
+			if (!idList.equals(EMPTY_STRING)) {
+				idList += ", ";
+			}
+			idList += "" + idsToDelete.get(i);
+		}
+		return {CoPrefix}DbManager.getInstance().getWritableDatabase().delete(TABLE_NAME, {ObjPkFieldVar} + (notIn ? " NOT" : "") + " IN (" + idList + ")", null);
+	}
+	
+	public static int deleteWhere(String whereClause) {
+		return deleteWhere(whereClause, null);
+	}
+	
+	public static int deleteWhere(String whereClause, String[] whereArgs) {
+		return {CoPrefix}DbManager.getInstance().getWritableDatabase().delete(TABLE_NAME, whereClause, whereArgs);
+	}
+
+	public static List<{ClassName}> findAllObjects(String orderBy) {
+		Cursor c = {CoPrefix}DbManager.getInstance().getReadableDatabase().query(TABLE_NAME, ALL_COLUMN_NAMES, null, null, null, null, orderBy);
+		c.moveToFirst();
+		if (c.isAfterLast()) {
+			c.close();
+			return null;
+		} 
+		
+		ArrayList<{ClassName}> objList = new ArrayList<{ClassName}>();
+		while (!c.isAfterLast()) {
+			objList.add(new {ClassName}(c, false));
+			c.moveToNext();
+		}
+		c.close();
+		return objList;
+	}
+
+{ObjGettersAndSetters}
+
+}

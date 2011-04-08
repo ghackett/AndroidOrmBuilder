@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteOpenHelper;
 import org.json.JSONObject;
+import {PackageName}.database.{CoPrefix}DbManager;
 
 public abstract class {CoPrefix}PersistentObject {
 	
